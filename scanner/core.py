@@ -111,7 +111,7 @@ class SkillScanner:
         (r'os\.system\s*\(', "os.system() call"),
         (r'child_process', "Node child_process"),
         (r'\$\(.*\)', "Shell command substitution"),
-        (r'`[^`]+`', "Backtick command execution"),
+        # Backtick pattern removed - too many false positives with markdown
     ]
     
     # Suspicious URL patterns
