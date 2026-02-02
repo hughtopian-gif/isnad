@@ -195,3 +195,11 @@ async def registry(req: Request, limit: int = 50, risk_level: Optional[str] = No
 async def stats():
     """Get usage statistics."""
     return get_stats()
+
+
+@app.get("/stats.html", response_class=FileResponse)
+async def stats_page():
+    """Serve stats dashboard."""
+    if os.path.exists("web/stats.html"):
+        return FileResponse("web/stats.html")
+    raise HTTPException(status_code=404, detail="Stats page not found")
