@@ -22,6 +22,10 @@ primary_region = "syd"
     hard_limit = 250
     soft_limit = 200
 
+[mounts]
+  source = "isnad_data"
+  destination = "/data"
+
 [[vm]]
   cpu_kind = "shared"
   cpus = 1

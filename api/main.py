@@ -15,6 +15,7 @@ from datetime import datetime
 
 from scanner.core import scan_skill
 from api.security import SSRFProtection, RateLimiter
+from api.analytics import init_db, record_scan, get_stats
 
 app = FastAPI(
     title="Isnad",
@@ -34,6 +35,9 @@ app.add_middleware(
 
 scan_cache: dict = {}
 rate_limiter = RateLimiter()
+
+# Initialize analytics database
+init_db()
 
 
 def get_client_ip(request: Request) -> str:
