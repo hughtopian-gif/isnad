@@ -1,10 +1,10 @@
 """
-Isnad API
+Isnad API - Secured
 
-FastAPI application for the Isnad skill scanning service.
+Trust infrastructure for the agent internet.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
 from typing import Optional
@@ -12,26 +12,36 @@ import httpx
 import hashlib
 from datetime import datetime
 
-from scanner.core import SkillScanner, scan_skill
-
+from scanner.core import scan_skill
+from api.security import SSRFProtection, RateLimiter
 
 app = FastAPI(
     title="Isnad",
-    description="Trust infrastructure for the agent internet. Scan agent skills for security issues.",
-    version="0.1.0",
+    description="Trust infrastructure for the agent internet.",
+    version="0.2.0",
 )
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://isnad.dev",
+        "https://www.isnad.dev",
+        "https://moltbook.com",
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
-# In-memory cache (replace with Redis/PostgreSQL in production)
 scan_cache: dict = {}
+rate_limiter = RateLimiter()
+
+
+def get_client_ip(request: Request) -> str:
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
 
 
 class ScanRequest(BaseModel):
@@ -55,7 +65,7 @@ async def root():
     return {
         "name": "Isnad",
         "tagline": "Trust infrastructure for the agent internet",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "docs": "/docs",
     }
 
@@ -66,46 +76,65 @@ async def health():
 
 
 @app.post("/api/v1/scan", response_model=ScanResponse)
-async def scan(request: ScanRequest):
-    """
-    Scan a skill for security issues.
+async def scan(request: ScanRequest, req: Request):
+    """Scan a skill for security issues."""
     
-    Provide either a URL to fetch, or raw content to scan.
-    """
-    if not request.url and not request.content:
+    client_ip = get_client_ip(req)
+    allowed, info = rate_limiter.is_allowed(client_ip, 'scan')
+    if not allowed:
         raise HTTPException(
-            status_code=400,
-            detail="Must provide either 'url' or 'content'"
+            status_code=429,
+            detail=f"Rate limit exceeded. {info['remaining']} of {info['limit']} remaining.",
         )
+    
+    if not request.url and not request.content:
+        raise HTTPException(status_code=400, detail="Must provide 'url' or 'content'")
     
     content: str
     url: Optional[str] = None
     
     if request.url:
         url = str(request.url)
-        # Fetch the skill
+        
+        is_safe, error = SSRFProtection.validate_url(url)
+        if not is_safe:
+            raise HTTPException(status_code=400, detail=f"URL blocked: {error}")
+        
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(url, timeout=30.0, follow_redirects=True)
+                response = await client.get(
+                    url,
+                    timeout=10.0,
+                    follow_redirects=False,
+                )
+                
+                if response.is_redirect:
+                    redirect_url = response.headers.get('location', '')
+                    is_safe, error = SSRFProtection.validate_url(redirect_url)
+                    if not is_safe:
+                        raise HTTPException(status_code=400, detail=f"Redirect blocked: {error}")
+                    response = await client.get(redirect_url, timeout=10.0)
+                
                 response.raise_for_status()
+                
+                if len(response.content) > 1_000_000:
+                    raise HTTPException(status_code=400, detail="Content too large (max 1MB)")
+                
                 content = response.text
+                
         except httpx.HTTPError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Failed to fetch URL: {str(e)}"
-            )
+            raise HTTPException(status_code=400, detail=f"Fetch failed: {str(e)}")
     else:
         content = request.content
+        if len(content) > 1_000_000:
+            raise HTTPException(status_code=400, detail="Content too large (max 1MB)")
     
-    # Scan
     result = scan_skill(content, url)
     
-    # Generate scan ID
     scan_id = hashlib.md5(
         f"{result['content_hash']}{datetime.utcnow().isoformat()}".encode()
     ).hexdigest()[:12]
     
-    # Cache result
     scan_cache[scan_id] = result
     scan_cache[result['content_hash']] = result
     
@@ -123,7 +152,7 @@ async def scan(request: ScanRequest):
 
 @app.get("/api/v1/scan/{scan_id}")
 async def get_scan(scan_id: str):
-    """Get a previous scan result by ID."""
+    """Get a previous scan result."""
     if scan_id not in scan_cache:
         raise HTTPException(status_code=404, detail="Scan not found")
     return scan_cache[scan_id]
@@ -131,30 +160,23 @@ async def get_scan(scan_id: str):
 
 @app.get("/api/v1/check/{content_hash}")
 async def check_hash(content_hash: str):
-    """Check if a skill has been scanned before (by content hash)."""
+    """Check if a skill has been scanned."""
     if content_hash in scan_cache:
-        return {
-            "scanned": True,
-            "risk_level": scan_cache[content_hash]["risk_level"],
-        }
+        return {"scanned": True, "risk_level": scan_cache[content_hash]["risk_level"]}
     return {"scanned": False}
 
 
 @app.get("/api/v1/registry")
-async def registry(limit: int = 50, risk_level: Optional[str] = None):
+async def registry(req: Request, limit: int = 50, risk_level: Optional[str] = None):
     """Get recently scanned skills."""
+    client_ip = get_client_ip(req)
+    allowed, _ = rate_limiter.is_allowed(client_ip, 'registry')
+    if not allowed:
+        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+    
     results = list(scan_cache.values())
     
     if risk_level:
         results = [r for r in results if r.get("risk_level") == risk_level]
     
-    return {
-        "skills": results[:limit],
-        "total": len(results),
-    }
-
-
-# Run with: uvicorn api.main:app --reload
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    return {"skills": results[:limit], "total": len(results)}

@@ -1,7 +1,7 @@
 # Isnad Fly.io Configuration
 # Deploy with: fly deploy
 
-app = "isnad"
+app = "isnad-scanner"
 primary_region = "syd"
 
 [build]
