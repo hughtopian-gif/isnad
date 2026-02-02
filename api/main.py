@@ -145,6 +145,16 @@ async def scan(request: ScanRequest, req: Request):
     
     scan_cache[scan_id] = result
     scan_cache[result['content_hash']] = result
+
+    # Record to analytics
+    record_scan(
+        scan_id=scan_id,
+        content_hash=result['content_hash'],
+        risk_level=result['risk_level'],
+        client_ip=client_ip,
+        skill_url=url,
+        findings_count=len(result['findings'])
+    )
     
     return ScanResponse(
         scan_id=scan_id, skill_url=result["skill_url"], content_hash=result["content_hash"],
