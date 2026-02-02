@@ -7,98 +7,32 @@
     <meta name="description" content="Scan AI agent skills for security issues before you install them.">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0a;
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; line-height: 1.6; }
         .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
         header { padding: 20px 0; border-bottom: 1px solid #222; }
         .logo { font-size: 24px; font-weight: bold; color: #00d4aa; }
         .logo span { color: #e01b24; }
         .hero { padding: 80px 0; text-align: center; }
-        h1 {
-            font-size: 44px;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #00d4aa, #4a9eff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        h1 { font-size: 44px; margin-bottom: 20px; background: linear-gradient(135deg, #00d4aa, #4a9eff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .tagline { font-size: 20px; color: #888; margin-bottom: 40px; }
-        .cta {
-            display: inline-block;
-            background: #00d4aa;
-            color: #000;
-            padding: 15px 40px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
-        }
+        .cta { display: inline-block; background: #00d4aa; color: #000; padding: 15px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 18px; }
         .cta:hover { background: #00eabb; }
-        .demo {
-            background: #111;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 40px auto;
-            max-width: 700px;
-            text-align: left;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 14px;
-            overflow-x: auto;
-        }
+        .demo { background: #111; border-radius: 12px; padding: 25px; margin: 40px auto; max-width: 700px; text-align: left; font-family: 'Monaco', 'Menlo', monospace; font-size: 14px; overflow-x: auto; }
         .demo .c { color: #666; }
         .demo .g { color: #00d4aa; }
         .demo .b { color: #4a9eff; }
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 25px;
-            padding: 60px 0;
-        }
-        .feature {
-            background: #111;
-            border: 1px solid #222;
-            border-radius: 12px;
-            padding: 25px;
-        }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; padding: 60px 0; }
+        .feature { background: #111; border: 1px solid #222; border-radius: 12px; padding: 25px; }
         .feature h3 { color: #00d4aa; margin-bottom: 10px; }
-        .notify {
-            background: #111;
-            border: 1px solid #222;
-            border-radius: 12px;
-            padding: 40px;
-            margin: 40px 0;
-            text-align: center;
-        }
+        .notify { background: #111; border: 1px solid #222; border-radius: 12px; padding: 40px; margin: 40px 0; text-align: center; }
         .notify h3 { margin-bottom: 15px; font-size: 22px; }
         .notify form { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .notify input[type="email"] {
-            padding: 12px 20px;
-            border-radius: 6px;
-            border: 1px solid #333;
-            background: #1a1a1a;
-            color: #fff;
-            font-size: 16px;
-            width: 280px;
-        }
-        .notify button {
-            padding: 12px 25px;
-            border-radius: 6px;
-            border: none;
-            background: #00d4aa;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        footer {
-            padding: 40px 0;
-            border-top: 1px solid #222;
-            text-align: center;
-            color: #666;
-        }
+        .notify input[type="email"] { padding: 12px 20px; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 16px; width: 280px; }
+        .notify button { padding: 12px 25px; border-radius: 6px; border: none; background: #00d4aa; color: #000; font-weight: bold; cursor: pointer; }
+        footer { padding: 40px 0; border-top: 1px solid #222; text-align: center; color: #666; }
         footer a { color: #00d4aa; text-decoration: none; }
+        .disclaimer { background: #0d0d0d; border-top: 1px solid #222; padding: 30px 20px; text-align: center; color: #555; font-size: 12px; line-height: 1.8; }
+        .disclaimer p { max-width: 800px; margin: 0 auto; }
     </style>
 </head>
 <body>
@@ -165,12 +99,17 @@
 
     <footer>
         <div class="container">
-            <p>Built by <a href="https://moltbook.com/u/ClawTopian">ClawTopian</a> 🔱</p>
+            <p>Built by H. Evans</p>
             <p style="margin-top: 10px;">
                 <a href="/docs">API Docs</a> · 
+                <a href="/stats.html">Stats</a> ·
                 <a href="https://github.com/hughtopian-gif/isnad">GitHub</a>
             </p>
         </div>
     </footer>
+
+    <section class="disclaimer">
+        <p><strong>Disclaimer:</strong> Isnad is provided "as is" without warranty of any kind. Security scan results are informational only and do not guarantee the safety or security of any code. Users are solely responsible for evaluating and using any skills or code they install. The creators and operators of Isnad accept no liability for any damages, losses, or security incidents arising from the use of this service or reliance on its scan results.</p>
+    </section>
 </body>
 </html>
