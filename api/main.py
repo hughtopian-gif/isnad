@@ -179,3 +179,9 @@ async def registry(req: Request, limit: int = 50, risk_level: Optional[str] = No
     if risk_level:
         results = [r for r in results if r.get("risk_level") == risk_level]
     return {"skills": results[:limit], "total": len(results)}
+
+
+@app.get("/api/v1/stats")
+async def stats():
+    """Get usage statistics."""
+    return get_stats()
